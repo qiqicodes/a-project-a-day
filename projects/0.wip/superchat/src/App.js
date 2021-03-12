@@ -71,7 +71,66 @@ function SignOut() {
   )
 }
 function ChatRoom() {
+  // make a reference a firestore collection
+  const messagesRef = firestore.CollectionReference('messages');
+  // make a query documents in a collection
+  const query = messagesRef.orderBy('createdAt').limit(25);
+  // make the query listen to data with a hook in realtime
+  //return an array of objects, object is the messages in the database, reacts to changes in realtime
+  const [messages] = useCollectionData(query, {idField: 'id'});
+  // forValue state begins with an empty state
+  const [formValue, setFormValue] = useState('');
 
+  // event handler
+  const sendMessage = async (event) => {
+    event.preventDefault();
+    const { uid, photoURL } = auth.currentUser;
+
+    // create new document in firestore db
+    await messagesRef.add({
+      text: formValue,
+      createAt: firebase.firestore.FieldValue.serverTimestamp(),
+      uid,
+      photoURL
+    });
+
+    // reset the formValue to empty string
+    setFormValue('');
+  } 
+  return (
+  <>
+    <div>
+      {/* messages list. iterate over each document with the ChatMessage Component*/}
+      {messages && messages.map(msg => <ChatMessage key={msg.id} message={msg} />)}
+    </div>
+
+    <form>
+      {/* when user types into the form, this triggers the onChange event. 
+            then take the value of the change and bind to the formValue state */}
+      <input value={formValue} onChange={(event) => setFormValue(event.target.value)} />
+
+      {/* need a way to sumbit to write value to the firestore db */}
+      <button type="submit"> =] </button>
+
+
+    </form>
+    <div>
+
+    </div>
+  </>  
+  )
+}
+
+function ChatMessage(props){
+  const { text, uid, photoURL } = props.message;
+  // check if the message is sent or received by checking the current logged in user's id
+  const messageClass = uid === auth.currentUser.uid ? 'sent' : 'received';
+
+  return
+   <div className={`message ${messageClass}`}>
+    <img src={photoURL} />
+    <p>{text}</p>
+   </div>
 }
 
 export default App;
