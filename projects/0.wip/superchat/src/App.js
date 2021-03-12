@@ -71,6 +71,7 @@ function SignOut() {
   )
 }
 function ChatRoom() {
+  const referenceAtBottom = useRef();
   // make a reference a firestore collection
   const messagesRef = firestore.CollectionReference('messages');
   // make a query documents in a collection
@@ -96,14 +97,18 @@ function ChatRoom() {
 
     // reset the formValue to empty string
     setFormValue('');
+
+    referenceAtBottom.current.scrollIntoView({ behavior: 'smooth' });
   } 
   return (
   <>
-    <div>
+    <main>
       {/* messages list. iterate over each document with the ChatMessage Component*/}
       {messages && messages.map(msg => <ChatMessage key={msg.id} message={msg} />)}
-    </div>
-
+      {/* use ref prop to scroll the page down */}
+      <div ref={referenceAtBottom}></div>
+    </main>
+    
     <form>
       {/* when user types into the form, this triggers the onChange event. 
             then take the value of the change and bind to the formValue state */}
