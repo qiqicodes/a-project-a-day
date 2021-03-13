@@ -36,14 +36,17 @@ const firestore = firebase.firestore;
     * signed out
         - user is null
 */
-const [user] = useAuthState(auth);
+
 function App() {
+
+  const [user] = useAuthState(auth);
+
   return (
     <div className="App">
       <header className="App-header">
-
-
+        <SignOut />
       </header>
+
       <section>
         {/*   if user:  show ChatRoom
               else:     show SignIn     */}
@@ -55,6 +58,7 @@ function App() {
 
 
 function SignIn() {
+
   const signInWithGoogle = () => {
     const provider = new firebase.auth.GoogleAuthProvider();
     auth.signInWithPopup(provider);
@@ -70,6 +74,7 @@ function SignOut() {
     <button onClick={() => auth.signOut()}>Sign Out</button>
   )
 }
+
 function ChatRoom() {
   const referenceAtBottom = useRef();
   // make a reference a firestore collection
@@ -100,16 +105,19 @@ function ChatRoom() {
 
     referenceAtBottom.current.scrollIntoView({ behavior: 'smooth' });
   } 
-  return (
-  <>
+
+  return (<>
     <main>
+      
       {/* messages list. iterate over each document with the ChatMessage Component*/}
       {messages && messages.map(msg => <ChatMessage key={msg.id} message={msg} />)}
+      
       {/* use ref prop to scroll the page down */}
-      <div ref={referenceAtBottom}></div>
+      <span ref={referenceAtBottom}></span>
+
     </main>
     
-    <form>
+    <form onSubmit={sendMessage}>
       {/* when user types into the form, this triggers the onChange event. 
             then take the value of the change and bind to the formValue state */}
       <input value={formValue} onChange={(event) => setFormValue(event.target.value)} />
@@ -119,9 +127,6 @@ function ChatRoom() {
 
 
     </form>
-    <div>
-
-    </div>
   </>  
   )
 }
@@ -131,11 +136,12 @@ function ChatMessage(props){
   // check if the message is sent or received by checking the current logged in user's id
   const messageClass = uid === auth.currentUser.uid ? 'sent' : 'received';
 
-  return
+  return(<>
    <div className={`message ${messageClass}`}>
     <img src={photoURL} />
     <p>{text}</p>
    </div>
+   </>)
 }
 
 export default App;
